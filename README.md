@@ -2,6 +2,10 @@
 
 # 小说精品屋-plus
 
+#### 官网
+
+https://xiongxyang.gitee.io/home/
+
 #### 新项目：小说精品屋-微服务版
 
 基于小说精品屋-plus构建的Spring Cloud 微服务小说门户平台。
@@ -21,7 +25,7 @@ Gitee仓库地址： https://gitee.com/novel_dev_team/novel-cloud
 
 #### 项目介绍
 
-小说精品屋-plus是在[小说精品屋](https://github.com/201206030/fiction_house)的基础上，去除了漫画和弹幕模块，专注于小说，是一个多端（PC、移动）阅读、功能完善的小说原创/爬虫网站项目，既包含了作家专区供原创作者上传小说，又提供了爬虫工具通过规则多线程全自动采集任意小说网站数据（已兼容99%的小说网站），新书自动入库，老书自动更新。
+小说精品屋-plus是在[小说精品屋](https://github.com/201206030/fiction_house)的基础上，去除了漫画和弹幕模块，专注于小说，是一个多端（PC、WAP）阅读、功能完善的原创文学CMS系统，由前台门户系统、作家后台管理系统、平台后台管理系统、爬虫管理系统等多个子系统构成，支持会员充值、订阅模式、新闻发布和实时统计报表等功能。
 
 小说精品屋-plus重新进行了数据库设计、代码重构和功能增强，提升了程序整体的可读性和性能，增加了很多商用特性。主要升级如下：
 
@@ -44,9 +48,9 @@ Gitee仓库地址： https://gitee.com/novel_dev_team/novel-cloud
 ```
 novel-plus -- 父工程
 ├── novel-common -- 通用模块
-├── novel-front -- 前台门户系统
-├── novel-crawl -- 爬虫管理系统
-└── novel-admin -- 后台管理系统
+├── novel-front -- 前台门户&作家后台管理子系统（可拆分）
+├── novel-crawl -- 爬虫管理子系统
+└── novel-admin -- 平台后台管理子系统
 ```
 
 #### 技术选型
@@ -202,12 +206,12 @@ docker安装教程：[点击前往](https://my.oschina.net/java2nb/blog/4271989)
 #### 代码仓库
 
  GitHub仓库地址： https://github.com/201206030/novel-plus 
- 
+
  Gitee仓库地址： https://gitee.com/novel_dev_team/novel-plus
 
 #### QQ交流群
 
-![mini-code](https://s1.ax1x.com/2020/10/31/BUQVeI.png)
+[点击前往官网查看](https://xiongxyang.gitee.io/home/service.htm)
 
 #### 微信公众号（发布最新更新资讯）
 
