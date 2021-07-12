@@ -17,7 +17,19 @@ public final class CrawlSingleTaskDynamicSqlSupport {
     public static final SqlColumn<Integer> sourceId = crawlSingleTask.sourceId;
 
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    public static final SqlColumn<String> sourceName = crawlSingleTask.sourceName;
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
     public static final SqlColumn<String> sourceBookId = crawlSingleTask.sourceBookId;
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    public static final SqlColumn<Integer> catId = crawlSingleTask.catId;
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    public static final SqlColumn<String> bookName = crawlSingleTask.bookName;
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    public static final SqlColumn<String> authorName = crawlSingleTask.authorName;
 
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
     public static final SqlColumn<Byte> taskStatus = crawlSingleTask.taskStatus;
@@ -34,7 +46,15 @@ public final class CrawlSingleTaskDynamicSqlSupport {
 
         public final SqlColumn<Integer> sourceId = column("source_id", JDBCType.INTEGER);
 
+        public final SqlColumn<String> sourceName = column("source_name", JDBCType.VARCHAR);
+
         public final SqlColumn<String> sourceBookId = column("source_book_id", JDBCType.VARCHAR);
+
+        public final SqlColumn<Integer> catId = column("cat_id", JDBCType.INTEGER);
+
+        public final SqlColumn<String> bookName = column("book_name", JDBCType.VARCHAR);
+
+        public final SqlColumn<String> authorName = column("author_name", JDBCType.VARCHAR);
 
         public final SqlColumn<Byte> taskStatus = column("task_status", JDBCType.TINYINT);
 

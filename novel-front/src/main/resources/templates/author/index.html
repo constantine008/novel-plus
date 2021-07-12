@@ -8,6 +8,19 @@
         <title>作家管理系统-小说精品屋</title>
         <link rel="stylesheet" href="/css/base.css?v=1"/>
         <link rel="stylesheet" href="/css/user.css" />
+        <style type="text/css">
+            .redBtn{
+                padding: 5px;
+                border-radius: 20px;
+                border: 1px solid #f80;
+                background: #f80;
+                color: #fff;
+            }
+            a.redBtn:hover{
+
+                color: #fff;
+            }
+        </style>
     </head>
 </head>
 <body class="">
@@ -27,14 +40,19 @@
         <div class="my_l">
 
             <ul class="log_list">
-                <li><a class="link_1 on" href="/author/index.html">小说管理</a></li>
+                <li><a class="link_4 on" href="/author/index.html">小说管理</a></li>
+                <li><a class="link_2 " href="/author/author_income_detail.html">稿费收入</a></li>
                 <!-- <li><a class="link_1 " href="/user/userinfo.html">批量小说爬取</a></li>
                  <li><a class="link_4 " href="/user/favorites.html">单本小说爬取</a></li>-->
             </ul>
 
         </div>
         <div class="my_r">
-            <div class="my_bookshelf">
+            <div id="noContentDiv"  >
+                <div class="tc" style="margin-top: 200px"><a href="/author/book_add.html" class="btn_red">创建作品</a></div>
+
+            </div>
+            <div class="my_bookshelf" id="hasContentDiv" style="display: none">
                 <div class="title cf">
                     <h2 class="fl">小说列表</h2>
                     <div class="fr"><a href="/author/book_add.html" class="btn_red">发布小说</a></div>
@@ -44,20 +62,23 @@
                     <table cellpadding="0" cellspacing="0">
                         <thead>
                         <tr>
-                            <th class="style">
-                                序号
+                            <th class="goread">
+                                书名
                             </th>
-                            <th class="name">
-                                小说名
+                            <th class="goread">
+                                分类
                             </th>
                             <th class="goread">
                                 点击量
                             </th>
-                            <th class="name">
-                                最新章节
+                            <th class="goread">
+                                昨日订阅数
                             </th>
                             <th class="goread">
-                                状态
+                                更新时间
+                            </th>
+                            <th class="goread">
+                                总字数
                             </th>
                             <th class="goread">
                                 操作
@@ -112,17 +133,19 @@
 
 </body>
 <script src="/javascript/jquery-1.8.0.min.js" type="text/javascript"></script>
+<script src="/javascript/ajaxfileupload.js" type="text/javascript"></script>
 <script src="/layui/layui.all.js" type="text/javascript"></script>
 <script src="/javascript/header.js" type="text/javascript"></script>
 <script src="/javascript/user.js" type="text/javascript"></script>
+<script src="/javascript/date.js" type="text/javascript"></script>
 
 <script language="javascript" type="text/javascript">
-    search(1, 10);
+    search(1, 5);
 
     function search(curr, limit) {
 
         $.ajax({
-            type: "POST",
+            type: "get",
             url: "/author/listBookByPage",
             data: {'curr':curr,'limit':limit},
             dataType: "json",
@@ -130,26 +153,46 @@
                 if (data.code == 200) {
                     var bookList = data.data.list;
                     if (bookList.length > 0) {
+                        $("#hasContentDiv").css("display","block");
+                        $("#noContentDiv").css("display","none");
                         var bookListHtml = "";
                         for(var i=0;i<bookList.length;i++){
                             var book = bookList[i];
                             bookListHtml+=(" <tr class=\"book_list\" vals=\"291\">\n" +
-                                "                            <td class=\"style bookclass\">\n" +
-                                "                                ["+(i+1)+"]\n" +
-                                "                            </td>\n" +
-                                "                            <td class=\"name\">\n" +
+                                /* "                            <td class=\"style bookclass\">\n" +
+                                 "                                ["+(i+1)+"]\n" +
+                                 "                            </td>\n" +*/
+
+                                "                            <td style=\"position: relative\" class=\"goread\">\n" +
+                                "<input class=\"opacity\" onchange=\"picChange('"+book.id+"')\"\n" +
+                                "                                           type=\"file\" id=\"file0\" name=\"file\"\n" +
+                                "                                           title=\"点击上传图片\"\n" +
+                                "                                           style=\"z-index: 100;cursor: pointer;left: 30px; top: 0px; width: 60px; height: 80px; opacity: 0; position: absolute;  \"\n" +
+                                "                                    />" +
+                                "<img width='50' height='70' src='"+book.picUrl+"'/><br/>" +
                                 "                                "+book.bookName+"</td>\n" +
+
+
+                                "                            <td class=\"goread\" >"
+                                +book.catName+"</td>\n" +
+
                                 "                            <td class=\"goread\" valsc=\"291|2037554|1\">"
                                 +book.visitCount+"</td>\n" +
-                                "                            <td class=\"name\">\n" +
-                                "                                "+book.lastIndexName+"\n" +
-                                "                            </td>\n" +
-                                "                            <td class=\"goread\" id='bookStatus"+book.id+"'>"+(book.status==0?'免费':'上架')+
+
+                                "                            <td class=\"goread\" valsc=\"291|2037554|1\">"
+                                +book.yesterdayBuy+"</td>\n" +
+
+                                "                            <td class=\"goread\">\n" +
+                                "                                "+new Date(Date.parse(book.lastIndexUpdateTime?book.lastIndexUpdateTime:book.updateTime)).Format("yyyy-MM-dd hh:mm")+"更新\n" +
                                 "                            </td>\n" +
 
+                                "                            <td class=\"goread\" valsc=\"291|2037554|1\">"
+                                +book.wordCount+"</td>\n" +
+
                                 " <td class=\"goread\" id='opt"+book.id+"'>" +
-                                "<a href='javascript:updateBookStatus(\""+book.id+"\","+book.status+")'>"+(book.status==0?'上架':'下架')+"  </a>" +
-                                "<a href='/author/content_add.html?bookId="+book.id+"'>发布章节  </a>" +
+                                "<a target='_blank' class='redBtn' href='/author/index_list.html?bookId="+book.id+"'>章节管理  </a><br/>" +
+                                "<a target='_blank' href='/author/author_income_detail.html?bookId="+book.id+"'>薪酬查询  </a><br/>"+
+                                "<a target='_blank' href='/book/"+book.id+".html'>作品信息</a>"+
                                 "</td>                     </tr>");
                         }
                         $("#bookList").html(bookListHtml);
@@ -229,6 +272,56 @@
         })
 
 
+
+
+
+    }
+
+
+    function picChange(bookId) {
+        var file = $("#file0").val(); //文件名称
+        if (file != "") {
+
+            $.ajaxFileUpload({
+                url : "/file/upload", //用于文件上传的服务器端请求地址
+                secureuri : false, //是否需要安全协议，一般设置为false
+                fileElementId : "file0", //文件上传域的ID
+                dataType : "json", //返回值类型 一般设置为json
+                type : "post",
+                success : function(data) { //服务器成功响应处理函数
+                    if (data.code == 200) {
+                        $.ajax({
+                            type: "POST",
+                            url: "/author/updateBookPic",
+                            data: {'bookId':bookId,'bookPic':data.data},
+                            dataType: "json",
+                            success: function (data) {
+                                if (data.code == 200) {
+
+                                    location.reload();
+
+                                } else {
+                                    lock = false;
+                                    layer.alert(data.msg);
+                                }
+
+                            },
+                            error: function () {
+                                lock = false;
+                                layer.alert('网络异常');
+                            }
+                        })
+
+                    }else {
+                        layer.alert('图片上传失败');
+                    }
+
+                }
+
+            });
+        } else {
+            alert("请选择上传文件！");
+        }
 
 
 

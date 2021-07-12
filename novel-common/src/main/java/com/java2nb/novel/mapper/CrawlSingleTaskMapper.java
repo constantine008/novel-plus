@@ -35,7 +35,7 @@ import org.mybatis.dynamic.sql.util.mybatis3.MyBatis3Utils;
 @Mapper
 public interface CrawlSingleTaskMapper {
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
-    BasicColumn[] selectList = BasicColumn.columnList(id, sourceId, sourceBookId, taskStatus, excCount, createTime);
+    BasicColumn[] selectList = BasicColumn.columnList(id, sourceId, sourceName, sourceBookId, catId, bookName, authorName, taskStatus, excCount, createTime);
 
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
     @SelectProvider(type=SqlProviderAdapter.class, method="select")
@@ -63,7 +63,11 @@ public interface CrawlSingleTaskMapper {
     @Results(id="CrawlSingleTaskResult", value = {
         @Result(column="id", property="id", jdbcType=JdbcType.BIGINT, id=true),
         @Result(column="source_id", property="sourceId", jdbcType=JdbcType.INTEGER),
+        @Result(column="source_name", property="sourceName", jdbcType=JdbcType.VARCHAR),
         @Result(column="source_book_id", property="sourceBookId", jdbcType=JdbcType.VARCHAR),
+        @Result(column="cat_id", property="catId", jdbcType=JdbcType.INTEGER),
+        @Result(column="book_name", property="bookName", jdbcType=JdbcType.VARCHAR),
+        @Result(column="author_name", property="authorName", jdbcType=JdbcType.VARCHAR),
         @Result(column="task_status", property="taskStatus", jdbcType=JdbcType.TINYINT),
         @Result(column="exc_count", property="excCount", jdbcType=JdbcType.TINYINT),
         @Result(column="create_time", property="createTime", jdbcType=JdbcType.TIMESTAMP)
@@ -96,7 +100,11 @@ public interface CrawlSingleTaskMapper {
         return MyBatis3Utils.insert(this::insert, record, crawlSingleTask, c ->
             c.map(id).toProperty("id")
             .map(sourceId).toProperty("sourceId")
+            .map(sourceName).toProperty("sourceName")
             .map(sourceBookId).toProperty("sourceBookId")
+            .map(catId).toProperty("catId")
+            .map(bookName).toProperty("bookName")
+            .map(authorName).toProperty("authorName")
             .map(taskStatus).toProperty("taskStatus")
             .map(excCount).toProperty("excCount")
             .map(createTime).toProperty("createTime")
@@ -108,7 +116,11 @@ public interface CrawlSingleTaskMapper {
         return MyBatis3Utils.insertMultiple(this::insertMultiple, records, crawlSingleTask, c ->
             c.map(id).toProperty("id")
             .map(sourceId).toProperty("sourceId")
+            .map(sourceName).toProperty("sourceName")
             .map(sourceBookId).toProperty("sourceBookId")
+            .map(catId).toProperty("catId")
+            .map(bookName).toProperty("bookName")
+            .map(authorName).toProperty("authorName")
             .map(taskStatus).toProperty("taskStatus")
             .map(excCount).toProperty("excCount")
             .map(createTime).toProperty("createTime")
@@ -120,7 +132,11 @@ public interface CrawlSingleTaskMapper {
         return MyBatis3Utils.insert(this::insert, record, crawlSingleTask, c ->
             c.map(id).toPropertyWhenPresent("id", record::getId)
             .map(sourceId).toPropertyWhenPresent("sourceId", record::getSourceId)
+            .map(sourceName).toPropertyWhenPresent("sourceName", record::getSourceName)
             .map(sourceBookId).toPropertyWhenPresent("sourceBookId", record::getSourceBookId)
+            .map(catId).toPropertyWhenPresent("catId", record::getCatId)
+            .map(bookName).toPropertyWhenPresent("bookName", record::getBookName)
+            .map(authorName).toPropertyWhenPresent("authorName", record::getAuthorName)
             .map(taskStatus).toPropertyWhenPresent("taskStatus", record::getTaskStatus)
             .map(excCount).toPropertyWhenPresent("excCount", record::getExcCount)
             .map(createTime).toPropertyWhenPresent("createTime", record::getCreateTime)
@@ -158,7 +174,11 @@ public interface CrawlSingleTaskMapper {
     static UpdateDSL<UpdateModel> updateAllColumns(CrawlSingleTask record, UpdateDSL<UpdateModel> dsl) {
         return dsl.set(id).equalTo(record::getId)
                 .set(sourceId).equalTo(record::getSourceId)
+                .set(sourceName).equalTo(record::getSourceName)
                 .set(sourceBookId).equalTo(record::getSourceBookId)
+                .set(catId).equalTo(record::getCatId)
+                .set(bookName).equalTo(record::getBookName)
+                .set(authorName).equalTo(record::getAuthorName)
                 .set(taskStatus).equalTo(record::getTaskStatus)
                 .set(excCount).equalTo(record::getExcCount)
                 .set(createTime).equalTo(record::getCreateTime);
@@ -168,7 +188,11 @@ public interface CrawlSingleTaskMapper {
     static UpdateDSL<UpdateModel> updateSelectiveColumns(CrawlSingleTask record, UpdateDSL<UpdateModel> dsl) {
         return dsl.set(id).equalToWhenPresent(record::getId)
                 .set(sourceId).equalToWhenPresent(record::getSourceId)
+                .set(sourceName).equalToWhenPresent(record::getSourceName)
                 .set(sourceBookId).equalToWhenPresent(record::getSourceBookId)
+                .set(catId).equalToWhenPresent(record::getCatId)
+                .set(bookName).equalToWhenPresent(record::getBookName)
+                .set(authorName).equalToWhenPresent(record::getAuthorName)
                 .set(taskStatus).equalToWhenPresent(record::getTaskStatus)
                 .set(excCount).equalToWhenPresent(record::getExcCount)
                 .set(createTime).equalToWhenPresent(record::getCreateTime);
@@ -178,7 +202,11 @@ public interface CrawlSingleTaskMapper {
     default int updateByPrimaryKey(CrawlSingleTask record) {
         return update(c ->
             c.set(sourceId).equalTo(record::getSourceId)
+            .set(sourceName).equalTo(record::getSourceName)
             .set(sourceBookId).equalTo(record::getSourceBookId)
+            .set(catId).equalTo(record::getCatId)
+            .set(bookName).equalTo(record::getBookName)
+            .set(authorName).equalTo(record::getAuthorName)
             .set(taskStatus).equalTo(record::getTaskStatus)
             .set(excCount).equalTo(record::getExcCount)
             .set(createTime).equalTo(record::getCreateTime)
@@ -190,7 +218,11 @@ public interface CrawlSingleTaskMapper {
     default int updateByPrimaryKeySelective(CrawlSingleTask record) {
         return update(c ->
             c.set(sourceId).equalToWhenPresent(record::getSourceId)
+            .set(sourceName).equalToWhenPresent(record::getSourceName)
             .set(sourceBookId).equalToWhenPresent(record::getSourceBookId)
+            .set(catId).equalToWhenPresent(record::getCatId)
+            .set(bookName).equalToWhenPresent(record::getBookName)
+            .set(authorName).equalToWhenPresent(record::getAuthorName)
             .set(taskStatus).equalToWhenPresent(record::getTaskStatus)
             .set(excCount).equalToWhenPresent(record::getExcCount)
             .set(createTime).equalToWhenPresent(record::getCreateTime)

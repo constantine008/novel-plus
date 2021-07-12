@@ -55,9 +55,18 @@ public enum ResponseStatus {
      * */
     INVITE_CODE_INVALID(4001, "邀请码无效！"),
     AUTHOR_STATUS_FORBIDDEN(4002, "作者状态异常，暂不能管理小说！")
-    , BOOKNAME_EXISTS(4003,"已发布过同名小说！")
+    , BOOKNAME_EXISTS(4003,"已发布过同名小说！"),
 
-    ,
+    /**
+     * 小说相关错误
+     */
+    BOOK_EXISTS(5001,"该小说已存在")
+
+            ,
+    /**
+     * 搜索引擎相关错误
+     * */
+    ES_SEARCH_FAIL(9001,"搜索引擎查询错误！"),
 
 
     /**

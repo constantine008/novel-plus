@@ -1,12 +1,15 @@
 package com.java2nb.novel.service;
 
 
-import com.java2nb.novel.search.BookSP;
+import com.github.pagehelper.PageInfo;
+import com.java2nb.novel.core.bean.PageBean;
+import com.java2nb.novel.vo.BookSpVO;
 import com.java2nb.novel.vo.BookCommentVO;
 import com.java2nb.novel.vo.BookSettingVO;
 import com.java2nb.novel.entity.*;
 import com.java2nb.novel.vo.BookVO;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -44,9 +47,9 @@ public interface BookService {
      * @param params 搜索参数
      * @param page 页码
      * @param pageSize 分页大小
-     * @return 小说集合
+     * @return 小说集合分页信息
      * */
-    List<BookVO> searchByPage(BookSP params, int page, int pageSize);
+    PageBean searchByPage(BookSpVO params, int page, int pageSize);
 
     /**
      * 查询小说分类列表
@@ -64,10 +67,12 @@ public interface BookService {
      * 查询目录列表
      * @param bookId 书籍ID
      * @param orderBy 排序
-     *@param limit 查询条数
+     * @param page 查询页码
+     *@param pageSize 分页大小
      *@return 目录集合
      * */
-    List<BookIndex> queryIndexList(Long bookId, String orderBy, Integer limit);
+    List<BookIndex> queryIndexList(Long bookId, String orderBy, Integer page, Integer pageSize);
+
 
     /**
      * 查询目录
@@ -110,8 +115,8 @@ public interface BookService {
     /**
      * 增加点击次数
      * @param bookId 书籍ID
-     * */
-    void addVisitCount(Long bookId);
+     * @param visitCount*/
+    void addVisitCount(Long bookId, Integer visitCount);
 
     /**
      * 查询章节数
@@ -140,9 +145,9 @@ public interface BookService {
      * @param bookId 书籍ID
      * @param page 页码
      * @param pageSize 分页大小
-     * @return 评论集合
+     * @return 评论分页数据
      * */
-    List<BookCommentVO> listCommentByPage(Long userId, Long bookId, int page, int pageSize);
+    PageBean<BookCommentVO> listCommentByPage(Long userId, Long bookId, int page, int pageSize);
 
     /**
      * 新增评价
@@ -178,16 +183,17 @@ public interface BookService {
 
     /**
      * 查询网络图片的小说
+     *
+     * @param localPicPrefix
      * @param limit 查询条数
-     * @param offset 开始行数
      * @return 返回小说集合
      * */
-    List<Book> queryNetworkPicBooks(Integer limit, Integer offset);
+    List<Book> queryNetworkPicBooks(String localPicPrefix, Integer limit);
 
 
     /**
-     * 更新小说网络图片到本地
-     * @param picUrl 网络图片路径
+     * 更新爬取的小说网络图片到自己的存储介质（本地、OSS、fastDfs）
+     * @param picUrl 爬取的网络图片路径
      * @param bookId 小说ID
      */
     void updateBookPicToLocal(String picUrl, Long bookId);
@@ -197,8 +203,9 @@ public interface BookService {
      * @param userId 用户ID
      * @param page 页码
      * @param pageSize 分页大小
+     * @return 小说分页数据
      * */
-    List<Book> listBookPageByUserId(Long userId, int page, int pageSize);
+    PageBean<Book> listBookPageByUserId(Long userId, int page, int pageSize);
 
     /**
      * 发布小说
@@ -221,7 +228,63 @@ public interface BookService {
      * @param bookId 小说ID
      * @param indexName 章节名
      * @param content 章节内容
-     * @param authorId 作者ID
+     * @param isVip 是否收费
+     * @param authorId 作者ID   */
+    void addBookContent(Long bookId, String indexName, String content, Byte isVip, Long authorId);
+
+
+    /**
+     * 根据更新时间分页查询书籍列表
+     * @param startDate 开始时间，包括该时间
+     * @param limit 查询数量
+     * @return 书籍列表
      * */
-    void addBookContent(Long bookId, String indexName, String content, Long authorId);
+    List<Book> queryBookByUpdateTimeByPage(Date startDate, int limit);
+
+    /**
+     * 查询作品列表
+     * @param authorId 作家ID
+     * @return 作品列表
+     */
+    List<Book> queryBookList(Long authorId);
+
+    /**
+     * 删除章节
+     * @param indexId
+     * @param authorId 作家ID
+     */
+    void deleteIndex(Long indexId, Long authorId);
+
+    /**
+     * 更新章节名
+     * @param indexId
+     * @param indexName
+     * @param authorId
+     */
+    void updateIndexName(Long indexId, String indexName, Long authorId);
+
+    /**
+     * 查询章节内容
+     * @param indexId
+     * @param authorId
+     * @return
+     */
+    String queryIndexContent(Long indexId, Long authorId);
+
+    /**
+     *  更新章节内容
+     * @param indexId
+     * @param indexName
+     * @param content
+     * @param authorId
+     */
+    void updateBookContent( Long indexId, String indexName, String content, Long authorId);
+
+    /**
+     * 修改小说封面
+     * @param bookId
+     * @param bookPic
+     * @param authorId
+     */
+    void updateBookPic(Long bookId, String bookPic, Long authorId);
 }

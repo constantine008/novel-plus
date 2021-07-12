@@ -2,6 +2,7 @@ package com.java2nb.novel.dao;
 
 import com.java2nb.novel.domain.AuthorDO;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -29,4 +30,6 @@ public interface AuthorDao {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+    List<Map<Object, Object>> tableSta(Date minDate);
 }

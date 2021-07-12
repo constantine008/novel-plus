@@ -1,6 +1,5 @@
 package com.java2nb.novel.service.impl;
 
-import com.java2nb.novel.core.utils.IdWorker;
 import com.java2nb.novel.entity.Book;
 import com.java2nb.novel.entity.BookContent;
 import com.java2nb.novel.entity.BookIndex;
@@ -79,12 +78,9 @@ public class BookServiceImpl implements BookService {
 
             if(bookIndexList.size()>0) {
 
-                if (book.getId() == null) {
-                    book.setId(new IdWorker().nextId());
-                }
-
                 //保存小说主表
 
+                book.setCreateTime(new Date());
                 bookMapper.insertSelective(book);
 
                 //批量保存目录和内容
@@ -109,7 +105,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Map<Integer, BookIndex> queryExistBookIndexMap(Long bookId) {
-        List<BookIndex> bookIndexs = bookIndexMapper.selectMany(select(BookIndexDynamicSqlSupport.id,BookIndexDynamicSqlSupport.indexNum,BookIndexDynamicSqlSupport.indexName)
+        List<BookIndex> bookIndexs = bookIndexMapper.selectMany(select(BookIndexDynamicSqlSupport.id,BookIndexDynamicSqlSupport.indexNum,BookIndexDynamicSqlSupport.indexName,BookIndexDynamicSqlSupport.wordCount)
                 .from(BookIndexDynamicSqlSupport.bookIndex)
                 .where(BookIndexDynamicSqlSupport.bookId,isEqualTo(bookId))
                 .build()
@@ -122,36 +118,19 @@ public class BookServiceImpl implements BookService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void updateBookAndIndexAndContent(Book book, List<BookIndex> bookIndexList, List<BookContent> bookContentList, Map<Integer, BookIndex> existBookIndexMap) {
-        Date currentDate = new Date();
+    public void updateBookAndIndexAndContent(Book book,  List<BookIndex> bookIndexList, List<BookContent> bookContentList, Map<Integer, BookIndex> existBookIndexMap) {
         for (int i = 0; i < bookIndexList.size(); i++) {
             BookIndex bookIndex = bookIndexList.get(i);
             BookContent bookContent = bookContentList.get(i);
 
-            //插入或更新目录
-            Integer wordCount = bookContent.getContent().length();
-            bookIndex.setWordCount(wordCount);
-            bookIndex.setUpdateTime(currentDate);
 
-            if(bookIndex.getId() == null) {
+            if(!existBookIndexMap.containsKey(bookIndex.getIndexNum())) {
                 //插入
-                bookIndex.setBookId(book.getId());
-                Long indexId = new IdWorker().nextId();
-                bookIndex.setId(indexId);
-                bookIndex.setCreateTime(currentDate);
                 bookIndexMapper.insertSelective(bookIndex);
-            }else{
-                //更新
-                bookIndexMapper.updateByPrimaryKeySelective(bookIndex);
-            }
-
-            if(bookContent.getIndexId() == null) {
-                //插入
-                bookContent.setIndexId(bookIndex.getId());
                 bookContentMapper.insertSelective(bookContent);
             }else{
                 //更新
-
+                bookIndexMapper.updateByPrimaryKeySelective(bookIndex);
                 bookContentMapper.update(update(BookContentDynamicSqlSupport.bookContent)
                         .set(BookContentDynamicSqlSupport.content)
                         .equalTo(bookContent.getContent())
@@ -160,21 +139,10 @@ public class BookServiceImpl implements BookService {
                         .render(RenderingStrategies.MYBATIS3));
             }
 
+
         }
 
         //更新小说主表
-        if(bookIndexList.size()>0) {
-            //有更新章节，才需要更新以下字段
-            book.setWordCount(queryTotalWordCount(book.getId()));
-            BookIndex lastIndex = bookIndexList.get(bookIndexList.size()-1);
-            if(!existBookIndexMap.containsKey(lastIndex.getIndexNum())) {
-                //如果最新章节不在已存在章节中，那么更新小说表最新章节信息
-                book.setLastIndexId(lastIndex.getId());
-                book.setLastIndexName(lastIndex.getIndexName());
-                book.setLastIndexUpdateTime(currentDate);
-            }
-        }
-        book.setUpdateTime(currentDate);
         book.setBookName(null);
         book.setAuthorName(null);
         if(Constants.VISIT_COUNT_DEFAULT.equals(book.getVisitCount())) {

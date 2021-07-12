@@ -3,7 +3,7 @@
 
 <mapper namespace="com.java2nb.novel.mapper.FrontBookMapper">
 
-    <select id="searchByPage" parameterType="com.java2nb.novel.search.BookSP" resultType="com.java2nb.novel.vo.BookVO">
+    <select id="searchByPage" parameterType="com.java2nb.novel.vo.BookSpVO" resultType="com.java2nb.novel.vo.BookVO">
         select
         id,cat_id,cat_name,book_name,author_id,author_name,word_count,last_index_id,last_index_name,score,pic_url,book_status,last_index_update_time,book_desc
         from book where word_count > 0
@@ -34,8 +34,9 @@
 
     </select>
 
-    <update id="addVisitCount" parameterType="long">
-        update book set visit_count = visit_count + 1 where id = #{bookId}
+    <update id="addVisitCount" >
+        update book set visit_count = visit_count + ${visitCount}
+        where id = #{bookId}
     </update>
 
     <select id="listRecBookByCatId" parameterType="int" resultType="com.java2nb.novel.entity.Book">
@@ -54,8 +55,9 @@
     <select id="queryNetworkPicBooks" resultType="com.java2nb.novel.entity.Book">
         select
         id,pic_url from book
-        where pic_url like 'http://%' or pic_url like 'https://%'
-        limit #{offset},#{limit}
+        where pic_url like 'http%'
+        and pic_url not like concat('%',#{localPicPrefix},'%')
+        limit #{limit}
     </select>
 
     <select id="selectIdsByScoreAndRandom" parameterType="int" resultType="com.java2nb.novel.entity.Book">

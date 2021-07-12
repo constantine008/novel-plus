@@ -2,6 +2,7 @@ package com.java2nb.novel.service;
 
 import com.java2nb.novel.domain.AuthorDO;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -27,4 +28,6 @@ public interface AuthorService {
 	int remove(Long id);
 	
 	int batchRemove(Long[] ids);
+
+    Map<Object, Object> tableSta(Date minDate);
 }

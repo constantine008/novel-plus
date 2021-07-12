@@ -1,6 +1,7 @@
 package com.java2nb.novel.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.java2nb.novel.core.bean.PageBean;
 import com.java2nb.novel.core.utils.BeanUtil;
 import com.java2nb.novel.service.NewsService;
 import com.java2nb.novel.core.cache.CacheKey;
@@ -35,14 +36,14 @@ public class NewsServiceImpl implements NewsService {
     public List<News> listIndexNews() {
         List<News> result = (List<News>) cacheService.getObject(CacheKey.INDEX_NEWS_KEY);
         if(result == null || result.size() == 0) {
-            SelectStatementProvider selectStatement = select(id, catName, catId, title)
+            SelectStatementProvider selectStatement = select(id, catName, catId, title,createTime)
                     .from(news)
                     .orderBy(createTime.descending())
                     .limit(2)
                     .build()
                     .render(RenderingStrategies.MYBATIS3);
             result = newsMapper.selectMany(selectStatement);
-            cacheService.setObject(CacheKey.INDEX_NEWS_KEY,result);
+            cacheService.setObject(CacheKey.INDEX_NEWS_KEY,result,60 * 60 * 12);
         }
         return result;
     }
@@ -59,14 +60,16 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public List<NewsVO> listByPage(int page, int pageSize) {
+    public PageBean<News> listByPage(int page, int pageSize) {
         PageHelper.startPage(page,pageSize);
         SelectStatementProvider selectStatement = select(id, catName, catId, title,createTime)
                 .from(news)
                 .orderBy(createTime.descending())
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
-
-        return BeanUtil.copyList(newsMapper.selectMany(selectStatement),NewsVO.class);
+        List<News> news = newsMapper.selectMany(selectStatement);
+        PageBean<News> pageBean = new PageBean<>(news);
+        pageBean.setList(BeanUtil.copyList(news,NewsVO.class));
+        return pageBean;
     }
 }

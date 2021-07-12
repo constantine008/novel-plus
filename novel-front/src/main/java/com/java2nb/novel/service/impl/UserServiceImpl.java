@@ -1,11 +1,11 @@
 package com.java2nb.novel.service.impl;
 
 import com.github.pagehelper.PageHelper;
+import com.java2nb.novel.core.bean.PageBean;
 import com.java2nb.novel.core.bean.UserDetails;
 import com.java2nb.novel.core.utils.BeanUtil;
 import com.java2nb.novel.entity.*;
 import com.java2nb.novel.entity.User;
-import com.java2nb.novel.form.UserForm;
 import com.java2nb.novel.service.UserService;
 import com.java2nb.novel.core.enums.ResponseStatus;
 import com.java2nb.novel.core.exception.BusinessException;
@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 
-import static com.java2nb.novel.mapper.BookDynamicSqlSupport.book;
 import static com.java2nb.novel.mapper.BookDynamicSqlSupport.id;
 import static com.java2nb.novel.mapper.UserBookshelfDynamicSqlSupport.userBookshelf;
 import static com.java2nb.novel.mapper.UserDynamicSqlSupport.*;
@@ -59,11 +58,11 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserDetails register(UserForm form) {
+    public UserDetails register(User user) {
         //查询用户名是否已注册
         SelectStatementProvider selectStatement = select(count(id))
-                .from(user)
-                .where(username, isEqualTo(form.getUsername()))
+                .from(UserDynamicSqlSupport.user)
+                .where(username, isEqualTo(user.getUsername()))
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
         long count = userMapper.count(selectStatement);
@@ -72,7 +71,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ResponseStatus.USERNAME_EXIST);
         }
         User entity = new User();
-        BeanUtils.copyProperties(form,entity);
+        BeanUtils.copyProperties(user,entity);
         //数据库生成注册记录
         Long id = new IdWorker().nextId();
         entity.setId(id);
@@ -91,12 +90,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDetails login(UserForm form) {
+    public UserDetails login(User user) {
         //根据用户名密码查询记录
         SelectStatementProvider selectStatement = select(id, username,nickName)
-                .from(user)
-                .where(username, isEqualTo(form.getUsername()))
-                .and(password, isEqualTo(MD5Util.MD5Encode(form.getPassword(), Charsets.UTF_8.name())))
+                .from(UserDynamicSqlSupport.user)
+                .where(username, isEqualTo(user.getUsername()))
+                .and(password, isEqualTo(MD5Util.MD5Encode(user.getPassword(), Charsets.UTF_8.name())))
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
         List<User> users = userMapper.selectMany(selectStatement);
@@ -105,10 +104,10 @@ public class UserServiceImpl implements UserService {
         }
         //生成UserDetail对象并返回
         UserDetails userDetails = new UserDetails();
-        User user = users.get(0);
+        user = users.get(0);
         userDetails.setId(user.getId());
         userDetails.setNickName(user.getNickName());
-        userDetails.setUsername(form.getUsername());
+        userDetails.setUsername(user.getUsername());
         return userDetails;
     }
 
@@ -149,9 +148,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<BookShelfVO> listBookShelfByPage(Long userId, int page, int pageSize) {
+    public PageBean<BookShelfVO> listBookShelfByPage(Long userId, int page, int pageSize) {
         PageHelper.startPage(page, pageSize);
-        return userBookshelfMapper.listBookShelf(userId);
+        return new PageBean<>(userBookshelfMapper.listBookShelf(userId));
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -203,7 +202,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserFeedbackVO> listUserFeedBackByPage(Long userId, int page, int pageSize) {
+    public PageBean<UserFeedback> listUserFeedBackByPage(Long userId, int page, int pageSize) {
         PageHelper.startPage(page, pageSize);
         SelectStatementProvider selectStatement = select(UserFeedbackDynamicSqlSupport.content, UserFeedbackDynamicSqlSupport.createTime)
                 .from(userFeedback)
@@ -211,7 +210,10 @@ public class UserServiceImpl implements UserService {
                 .orderBy(UserFeedbackDynamicSqlSupport.id.descending())
                 .build()
                 .render(RenderingStrategies.MYBATIS3);
-        return BeanUtil.copyList(userFeedbackMapper.selectMany(selectStatement),UserFeedbackVO.class);
+        List<UserFeedback> userFeedbacks = userFeedbackMapper.selectMany(selectStatement);
+        PageBean<UserFeedback> pageBean = new PageBean<>(userFeedbacks);
+        pageBean.setList(BeanUtil.copyList(userFeedbacks,UserFeedbackVO.class));
+        return pageBean;
     }
 
     @Override
@@ -225,19 +227,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<BookReadHistoryVO> listReadHistoryByPage(Long userId, int page, int pageSize) {
+    public PageBean<BookReadHistoryVO> listReadHistoryByPage(Long userId, int page, int pageSize) {
         PageHelper.startPage(page, pageSize);
-        return userReadHistoryMapper.listReadHistory(userId);
+        return new PageBean<>(userReadHistoryMapper.listReadHistory(userId));
     }
 
     @Override
     public void updateUserInfo(Long userId, User user) {
-        User updateUser = new User();
-        updateUser.setId(userId);
-        updateUser.setNickName(user.getNickName());
-        updateUser.setUserSex(user.getUserSex());
-        updateUser.setUpdateTime(new Date());
-        userMapper.updateByPrimaryKeySelective(updateUser);
+        user.setId(userId);
+        user.setUpdateTime(new Date());
+        userMapper.updateByPrimaryKeySelective(user);
 
     }
 
@@ -284,24 +283,68 @@ public class UserServiceImpl implements UserService {
     public void buyBookIndex(Long userId, UserBuyRecord buyRecord) {
         //查询用户余额
         long balance = userInfo(userId).getAccountBalance();
-        if(balance<10){
+        if(balance<buyRecord.getBuyAmount()){
             //余额不足
             throw new BusinessException(ResponseStatus.USER_NO_BALANCE);
         }
         buyRecord.setUserId(userId);
         buyRecord.setCreateTime(new Date());
-        buyRecord.setBuyAmount(10);
         //生成购买记录
         userBuyRecordMapper.insertSelective(buyRecord);
 
         //减少用户余额
         userMapper.update(update(user)
                 .set(UserDynamicSqlSupport.accountBalance)
-                .equalTo(balance-10)
+                .equalTo(balance-buyRecord.getBuyAmount())
                 .where(id,isEqualTo(userId))
                 .build()
                 .render(RenderingStrategies.MYBATIS3));
     }
+
+    @Override
+    public int queryBuyMember(Long bookId, Date startTime, Date endTime) {
+        return userMapper.selectStatistic(select(countDistinct(UserBuyRecordDynamicSqlSupport.userId))
+                .from(UserBuyRecordDynamicSqlSupport.userBuyRecord)
+                .where(UserBuyRecordDynamicSqlSupport.bookId,isEqualTo(bookId))
+                .and(UserBuyRecordDynamicSqlSupport.createTime,isGreaterThanOrEqualTo(startTime))
+                .and(UserBuyRecordDynamicSqlSupport.createTime,isLessThanOrEqualTo(endTime))
+                .build()
+                .render(RenderingStrategies.MYBATIS3));
+    }
+
+    @Override
+    public int queryBuyCount(Long bookId, Date startTime, Date endTime) {
+        return userMapper.selectStatistic(select(count(UserBuyRecordDynamicSqlSupport.id))
+                .from(UserBuyRecordDynamicSqlSupport.userBuyRecord)
+                .where(UserBuyRecordDynamicSqlSupport.bookId,isEqualTo(bookId))
+                .and(UserBuyRecordDynamicSqlSupport.createTime,isGreaterThanOrEqualTo(startTime))
+                .and(UserBuyRecordDynamicSqlSupport.createTime,isLessThanOrEqualTo(endTime))
+                .build()
+                .render(RenderingStrategies.MYBATIS3));
+    }
+
+    @Override
+    public int queryBuyAccount(Long bookId, Date startTime, Date endTime) {
+        return userMapper.selectStatistic(select(sum(UserBuyRecordDynamicSqlSupport.buyAmount))
+                .from(UserBuyRecordDynamicSqlSupport.userBuyRecord)
+                .where(UserBuyRecordDynamicSqlSupport.bookId,isEqualTo(bookId))
+                .and(UserBuyRecordDynamicSqlSupport.createTime,isGreaterThanOrEqualTo(startTime))
+                .and(UserBuyRecordDynamicSqlSupport.createTime,isLessThanOrEqualTo(endTime))
+                .build()
+                .render(RenderingStrategies.MYBATIS3));
+    }
+
+    @Override
+    public int queryBuyTotalMember(List<Long> bookIds, Date startTime, Date endTime) {
+        return userMapper.selectStatistic(select(countDistinct(UserBuyRecordDynamicSqlSupport.userId))
+                .from(UserBuyRecordDynamicSqlSupport.userBuyRecord)
+                .where(UserBuyRecordDynamicSqlSupport.bookId,isIn(bookIds))
+                .and(UserBuyRecordDynamicSqlSupport.createTime,isGreaterThanOrEqualTo(startTime))
+                .and(UserBuyRecordDynamicSqlSupport.createTime,isLessThanOrEqualTo(endTime))
+                .build()
+                .render(RenderingStrategies.MYBATIS3));
+    }
+
 
 
 

@@ -11,7 +11,19 @@ public class CrawlSingleTask {
     private Integer sourceId;
 
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    private String sourceName;
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
     private String sourceBookId;
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    private Integer catId;
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    private String bookName;
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    private String authorName;
 
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
     private Byte taskStatus;
@@ -43,6 +55,16 @@ public class CrawlSingleTask {
     }
 
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName == null ? null : sourceName.trim();
+    }
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
     public String getSourceBookId() {
         return sourceBookId;
     }
@@ -50,6 +72,36 @@ public class CrawlSingleTask {
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
     public void setSourceBookId(String sourceBookId) {
         this.sourceBookId = sourceBookId == null ? null : sourceBookId.trim();
+    }
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    public Integer getCatId() {
+        return catId;
+    }
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    public void setCatId(Integer catId) {
+        this.catId = catId;
+    }
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    public String getBookName() {
+        return bookName;
+    }
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    public void setBookName(String bookName) {
+        this.bookName = bookName == null ? null : bookName.trim();
+    }
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    @Generated("org.mybatis.generator.api.MyBatisGenerator")
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName == null ? null : authorName.trim();
     }
 
     @Generated("org.mybatis.generator.api.MyBatisGenerator")
